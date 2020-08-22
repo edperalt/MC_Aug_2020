@@ -30,9 +30,21 @@ Bo <-   rnorm(20, 1.07, 0.02)  ## unitless
 
 ```{r}
 
-vol <- function(area, height, poro, sw, bo) {
-  stoiip <- area * height * poro * ( 1 - sw ) / bo 
+vol <- function(area, height, poro, sw, bo) {   ## vol comes in bbls
+  stoiip <- area * 1e6 * height * 6.28981 * poro * ( 1 - sw ) / bo 
 }
 
+```
+
+
+```{r}
+
+
+ param_list=list("area"=area, "height"=thk, "poro"= poro, "sw"= sw, "bo"= Bo )
+```
+
+```{r}
+
+  MC_result<-MonteCarlo(func=vol, nrep=1000, param_list=param_list)
 ```
 
