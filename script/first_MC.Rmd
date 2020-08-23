@@ -1,8 +1,11 @@
 ---
-title: "First Montecarlo test"
-author: "edm"
+title: "Montecarlo simulation sensitivity"
+
 date: "8/22/2020"
-output: html_document
+output:
+  html_document:
+    toc: true
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -17,14 +20,18 @@ library(tidyverse)
 
 ```
 
+# Montecarlo excercise
 
-```{r}
-df_sample <- 1e3
+## Description  
+This is an excercise to test set of montecarlo simulations to estimate the STOOIP of a field. We will compare to sets of distributions, one with 100 samples and one with 1e6. We will also compare the changes in the results when increaing the number of simulations. In the graphs p10, p50 and p90 will be shown as reference. The excercise will be repeated with a series of distributions created with 1e6  samples.  
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+df_sample <- 1e2
 ```
 
-## Area of the reservoir in km^2^
+## Area of the reservoir in km^2^ with `r df_sample` samples  
 
-```{r echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
 
 df <- 
@@ -44,10 +51,10 @@ ggplot(df, aes(area))+
 
 ```
 
-## Reservoir thickness in meters
+## Reservoir thickness in meters with `r df_sample` samples  
 
 
-```{r echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
 df$thk  <-  runif(df_sample, 8, 17)
   
@@ -64,16 +71,16 @@ ggplot(df, aes(thk))+
 ```
 
 
-## Reservoir porosity in fraction
+## Reservoir porosity in fraction with `r df_sample` samples  
 
 
-```{r echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
 df$poro  <- rnorm(df_sample, 0.2, 0.03)
   
   
 ggplot(df, aes(poro))+
-  geom_histogram(fill = "grey", bins = 100) +
+  geom_histogram(fill = "grey", bins = 30) +
   labs(x = "Porosity in fraction" ,
        y = "")+
   theme_minimal()+
@@ -84,17 +91,17 @@ ggplot(df, aes(poro))+
 ```
 
 
-## Reservoir water  saturation in fraction
+## Reservoir water  saturation in fraction with `r df_sample` samples  
 
 
-```{r echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
 df$sw  <- rnorm(df_sample, 0.22, 0.04)
   
 df<- df %>% mutate(sw = ifelse( sw < 0 , 0 ,  sw ) )
   
 ggplot(df, aes(sw))+
-  geom_histogram(fill = "grey", bins = 100) +
+  geom_histogram(fill = "grey", bins = 30) +
   labs(x = "Porosity in fraction" ,
        y = "")+
   theme_minimal()+
@@ -106,14 +113,15 @@ ggplot(df, aes(sw))+
 
 
 
-```{r}
 
-
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e2
 ```
 
+## Montecarlo,  `r mc_samples` simulations  
 
-```{r}
-mc_samples <- 1e5
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
 
 mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
 for (i in 1:mc_samples) {
@@ -128,7 +136,414 @@ for (i in 1:mc_samples) {
 }
 
 ggplot(mc_stooip, aes(stooip/1e6))+
-  geom_histogram()
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
 ```
 
 
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e3
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e4
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = c(0.1, 0.5, 0.9))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e5
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e6
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+# Second analysis with 1e6 samples  
+
+```{r number of samples 2nd analysis, message=FALSE, warning=FALSE, include=FALSE}
+df_sample <- 1e6
+```
+
+## Area of the reservoir in km^2^ with `r df_sample` samples  
+
+```{r Area 2, echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+df <- 
+  data.frame(area = runif( df_sample, 5, 12)) 
+  
+  
+ggplot(df, aes(area))+
+  geom_histogram(fill = "grey", bins = 20) +
+  labs(x = "Area km2" ,
+       y = "")+
+  theme_minimal()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+
+
+```
+
+## Reservoir thickness in meters with `r df_sample` samples  
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+df$thk  <-  runif(df_sample, 8, 17)
+  
+  
+ggplot(df, aes(thk))+
+  geom_histogram(fill = "grey", bins = 20) +
+  labs(x = "Thickness in meters" ,
+       y = "")+
+  theme_minimal()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+```
+
+
+## Reservoir porosity in fraction with `r df_sample` samples  
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+df$poro  <- rnorm(df_sample, 0.2, 0.03)
+  
+  
+ggplot(df, aes(poro))+
+  geom_histogram(fill = "grey", bins = 30) +
+  labs(x = "Porosity in fraction" ,
+       y = "")+
+  theme_minimal()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+```
+
+
+## Reservoir water  saturation in fraction with `r df_sample` samples  
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+df$sw  <- rnorm(df_sample, 0.22, 0.04)
+  
+df<- df %>% mutate(sw = ifelse( sw < 0 , 0 ,  sw ) )
+  
+ggplot(df, aes(sw))+
+  geom_histogram(fill = "grey", bins = 30) +
+  labs(x = "Porosity in fraction" ,
+       y = "")+
+  theme_minimal()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e2
+```
+
+## Montecarlo,  `r mc_samples` simulations  
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e3
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e4
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = c(0.1, 0.5, 0.9))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e5
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mc_samples <- 1e6
+```
+
+
+
+## STOOIP Montecarlo,  `r mc_samples` simulations  
+
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+
+mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
+for (i in 1:mc_samples) {
+  mc_stooip[i,"stooip"]<- 
+    sample(df$area, size = 1) * 
+    1e6 *
+    sample(df$thk, size = 1) *
+    6.28*
+     sample(df$poro, size = 1)*
+     ( 1 - sample(df$sw, size = 1 )) 
+    
+}
+
+ggplot(mc_stooip, aes(stooip/1e6))+
+  geom_histogram()+
+  geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
+  scale_x_continuous(breaks = seq(0,250, 10))+
+  labs(x= " STOIIP MM bbls")
+
+
+```
