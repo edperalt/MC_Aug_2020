@@ -29,63 +29,75 @@ This is an excercise to test set of montecarlo simulations to estimate the STOOI
 df_sample <- 1e2
 ```
 
-## Area of the reservoir in km^2^ with `r df_sample` samples  
+
 
 ```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
-
+## 
 df <- 
   data.frame(area = runif( df_sample, 5, 12)) 
   
   
-ggplot(df, aes(area))+
+area_a<-                ## the plots with a will be the ones with the small distribution
+  ggplot(df, aes(area))+
   geom_histogram(fill = "grey", bins = 20) +
   labs(x = "Area km2" ,
        y = "")+
   theme_minimal()+
   theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.y = element_blank())
+        panel.grid.minor.y = element_blank())+
+  scale_x_continuous(limits = c(0,15))
 
 
 
 
 ```
 
-## Reservoir thickness in meters with `r df_sample` samples  
+
 
 
 ```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
+## thickness
+
 df$thk  <-  runif(df_sample, 8, 17)
   
   
-ggplot(df, aes(thk))+
+thk_a<-
+  ggplot(df, aes(thk))+
   geom_histogram(fill = "grey", bins = 20) +
   labs(x = "Thickness in meters" ,
        y = "")+
   theme_minimal()+
   theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.y = element_blank())
+        panel.grid.minor.y = element_blank())+
+   scale_x_continuous(limits = c(5,20))
 
 
 ```
 
 
-## Reservoir porosity in fraction with `r df_sample` samples  
+
 
 
 ```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+## Porosity
+
 
 df$poro  <- rnorm(df_sample, 0.2, 0.03)
   
   
-ggplot(df, aes(poro))+
+poro_a<-
+  ggplot(df, aes(poro))+
   geom_histogram(fill = "grey", bins = 30) +
   labs(x = "Porosity in fraction" ,
        y = "")+
   theme_minimal()+
   theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.y = element_blank())
+        panel.grid.minor.y = element_blank())+
+  scale_x_continuous(limits = c(0.05, 0.3),
+                     breaks = seq(0.05, 0.3, 0.05),
+                     labels = seq(0.05, 0.3, 0.05))
 
 
 ```
@@ -100,13 +112,37 @@ df$sw  <- rnorm(df_sample, 0.22, 0.04)
   
 df<- df %>% mutate(sw = ifelse( sw < 0 , 0 ,  sw ) )
   
-ggplot(df, aes(sw))+
+sw_a<-ggplot(df, aes(sw))+
   geom_histogram(fill = "grey", bins = 30) +
   labs(x = "Porosity in fraction" ,
        y = "")+
   theme_minimal()+
   theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.y = element_blank())
+        panel.grid.minor.y = element_blank())+
+  scale_x_continuous(limits = c(0.05, 0.35),
+                     breaks = seq(0.1, 0.35, 0.05),
+                     labels = seq(0.1, 0.35, 0.05))
+
+
+```
+
+
+```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
+
+df$bo  <- rnorm(df_sample, 1.07, 0.02)
+  
+  
+bo_a<-ggplot(df, aes(bo))+
+  geom_histogram(fill = "grey", bins = 30) +
+  labs(x = "Porosity in fraction" ,
+       y = "")+
+  theme_minimal()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank())+
+  scale_x_continuous(limits = c(1, 1.12),
+                     # breaks = seq(0.1, 0.35, 0.05),
+                     # labels = seq(0.1, 0.35, 0.05)
+                     )
 
 
 ```
@@ -115,7 +151,7 @@ ggplot(df, aes(sw))+
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-mc_samples <- 1e2
+mc_samples_a <- 1e2
 ```
 
 ## Montecarlo,  `r mc_samples` simulations  
@@ -123,18 +159,36 @@ mc_samples <- 1e2
 ```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
 
-mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
-for (i in 1:mc_samples) {
-  mc_stooip[i,"stooip"]<- 
-    sample(df$area, size = 1) * 
-    1e6 *
-    sample(df$thk, size = 1) *
-    6.28*
-     sample(df$poro, size = 1)*
-     ( 1 - sample(df$sw, size = 1 )) 
-    
-}
+mc_stooip <- data.frame(id = seq(1 , mc_samples_a  ))
 
+mc_stooip$area <- sample(df$area, size = mc_samples_a, replace = TRUE)
+mc_stooip$thk  <- sample(df$thk,  size = mc_samples_a, replace = TRUE)
+mc_stooip$poro <- sample(df$poro, size = mc_samples_a, replace = TRUE)
+mc_stooip$sw   <- sample(df$sw,   size = mc_samples_a, replace = TRUE)
+mc_stooip$bo   <- sample(df$bo,   size = mc_samples_a, replace = TRUE)
+
+mc_stooip <- 
+  mc_stooip %>%
+    mutate(stooip = area *
+             1e6 *        # to get to meters
+             thk *
+             6.28 *       # transform into bbls
+             poro *
+             (1-sw) /
+             bo
+             )
+# for (i in 1:mc_samples) {
+#   mc_stooip[i,"stooip"]<- 
+#     sample(df$area, size = 1) * 
+#     1e6 *
+#     sample(df$thk, size = 1) *
+#     6.28*
+#      sample(df$poro, size = 1)*
+#      ( 1 - sample(df$sw, size = 1 )) 
+#     
+# }
+
+stooip_1e2_a<-
 ggplot(mc_stooip, aes(stooip/1e6))+
   geom_histogram()+
   geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
@@ -147,7 +201,7 @@ ggplot(mc_stooip, aes(stooip/1e6))+
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-mc_samples <- 1e3
+mc_samples_a <- 1e3
 ```
 
 
@@ -156,19 +210,25 @@ mc_samples <- 1e3
 
 ```{r echo=FALSE, fig.height=2.5, fig.width=6, message=FALSE, warning=FALSE}
 
+mc_stooip <- data.frame(id = seq(1 , mc_samples_a  ))
 
-mc_stooip <- data.frame(id = seq(1 , mc_samples  ))
-for (i in 1:mc_samples) {
-  mc_stooip[i,"stooip"]<- 
-    sample(df$area, size = 1) * 
-    1e6 *
-    sample(df$thk, size = 1) *
-    6.28*
-     sample(df$poro, size = 1)*
-     ( 1 - sample(df$sw, size = 1 )) 
-    
-}
+mc_stooip$area <- sample(df$area, size = mc_samples_a, replace = TRUE)
+mc_stooip$thk  <- sample(df$thk,  size = mc_samples_a, replace = TRUE)
+mc_stooip$poro <- sample(df$poro, size = mc_samples_a, replace = TRUE)
+mc_stooip$sw   <- sample(df$sw,   size = mc_samples_a, replace = TRUE)
+mc_stooip$bo   <- sample(df$bo,   size = mc_samples_a, replace = TRUE)
 
+mc_stooip <- 
+  mc_stooip %>%
+    mutate(stooip = area *
+             1e6 *        # to get to meters
+             thk *
+             6.28 *       # transform into bbls
+             poro *
+             (1-sw) /
+             bo
+             )
+stooip_1e3_a<-
 ggplot(mc_stooip, aes(stooip/1e6))+
   geom_histogram()+
   geom_vline( xintercept = quantile(mc_stooip$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
