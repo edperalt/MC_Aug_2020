@@ -780,6 +780,8 @@ The STOOIP is estimated in bbls with the following formula:
 
 $$ STOOIP = Area * Thickness * Porosity * ( 1 - Sw ) / Bo $$  
 
+Blue lines represent p10 and p90 and the red line the p50.
+
 ###  100 simulations
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE}
