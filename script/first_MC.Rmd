@@ -527,7 +527,7 @@ mc_stooip_b <-
              bo
              )
 
-stooip_1e2_b<-
+ stooip_1e2_b<-
     ggplot(mc_stooip_b, aes(stooip/1e6))+
       geom_histogram()+
       geom_vline( xintercept = quantile(mc_stooip_b$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
@@ -571,7 +571,7 @@ mc_stooip_b <-
              bo
              )
 
-stooip_1e3_b<-
+ stooip_1e3_b<-
     ggplot(mc_stooip_b, aes(stooip/1e6))+
       geom_histogram()+
       geom_vline( xintercept = quantile(mc_stooip_b$stooip,probs = seq(0.1, 0.9, 0.4))/1e6, color = c("blue","red", "blue" ))+
@@ -586,7 +586,7 @@ stooip_1e3_b<-
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-mc_samples <- 1e4
+mc_samples_b <- 1e4
 ```
 
 
@@ -631,7 +631,7 @@ stooip_1e4_b<-
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-mc_samples <- 1e5
+mc_samples_b <- 1e5
 ```
 
 
@@ -678,7 +678,7 @@ stooip_1e5_b<-
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-mc_samples <- 1e6
+mc_samples_b <- 1e6
 ```
 
 
