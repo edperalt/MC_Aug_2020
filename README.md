@@ -30,7 +30,7 @@ I will be using the followiing R packages:
 
 The **STOOIP** is estimated in MM bbls with the following formula:
 
-$$ STOOIP = Area * Thickness * Porosity * ( 1 - Sw ) / Bo * Ct $$  
+$ STOOIP = Area * Thickness * Porosity * ( 1 - Sw ) / Bo * Ct $  
 
 where:  
 
