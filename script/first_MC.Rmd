@@ -1,13 +1,14 @@
 ---
-title: "Montecarlo simulation"
-subtitle: "sensitivity to sample size "
-date: "8/22/2020"
+title: "Montecarlo simulation to estimate STOOIP"
+subtitle: "Sensitivity to sample size "
+date: "1/29/2021"
 output: 
   html_document: 
     toc: yes
     toc_float:
-      toc_collapsed: yes
-    theme: lumen
+      toc_collapsed: no
+    theme: readable
+    keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -16,22 +17,50 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
-library(MonteCarlo)
+
 library(tidyverse)
 library(gridExtra)
 
+set.seed(456)
 
 ```
 
-
+![swimming with friends](../open_water_friends.JPG)
 
 ## Description  
-This is an excercise to test a montecarlo simulation to estimate the STOOIP of a field, using the [MonteCarlo package](https://cran.r-project.org/web/packages/MonteCarlo/index.html). 
-<br>
-We will perform simulations increasing the number of runs drawing data from 2 datasets, both with the same distributions for each parameter, however with different number of samples:  
-<br>
-* Dataset 1 will have 100 samples for each parameter
-* Dataset 2 will have 1E6 samples for each parameter  
+In this excercise we want to  have a qualitative feel of the performance we can obtain using a Montecarlo simulation to estimate the **STOOIP** on a theoretical field. We will assume two extreme examples:  
+
+* *Dataset 1* will have 100 samples for each parameter  
+* *Dataset 2* will have a million samples for each parameter   
+
+In both cases we will explore the resulting distribution of Stooip and compare visually the estimation of P10, P50 and P90 running simulations that vary from 100 to a million simulations.
+
+I will be using the followiing R packages:  
+
++ [tidyverse](https://www.tidyverse.org/ ), to perform data preparation
++ [gridExtra](https://cran.r-project.org/package=gridExtra) to organize multiple plot outputs.
+
+<br>  
+
+
+### STOOIP definition
+
+
+
+The **STOOIP** is estimated in MM bbls with the following formula:
+
+$$ STOOIP = Area * Thickness * Porosity * ( 1 - Sw ) / Bo * Ct $$  
+
+where:  
+
++ **Area** in Km2
++ **Thickness** in meters
++ **Porosity** in fraction
++ **Water Saturation** in fraction
++ **Bo**  is unitless
++ **Ct** is a constant of 6.28 to obtains mmbbls as final unit for **STOOIP**  
+
+**Note**: I  have set a seed at the beginning of the code to allow for reproducibility, changing this values we can compare and realize how stable are the simulations when using different entry values.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -754,7 +783,7 @@ stooip_1e6_b<-
 
 
 ```
-
+<br>  
 
 ## Distributions used
 
@@ -814,7 +843,7 @@ The STOOIP is estimated in bbls with the following formula:
 
 $$ STOOIP = Area * Thickness * Porosity * ( 1 - Sw ) / Bo $$  
 
-Blue lines represent p10 and p90 and the red line the p50.
+**<span style="color:blue"> Blue </span>** lines represent **P10** and **P90** and the **<span style="color:Red"> Red </span>** line the **P50**.
 
 ###  100 simulations
 
@@ -871,6 +900,11 @@ grid.arrange(stooip_1e6_a, stooip_1e6_b)
 ```
 
 
+## Conclusions
 
+There are many conclusions to be made here, however I´will focus on the oints that normally affect my work.  
+
+- outliers or *min* and *max* values are very conditioned by the sample size, as in general in random populations we have a very small chance of capture the entire range, and this is very evident on these examples. 
+- the probabilities P10, P50 and P90  stabilize very early on, even with the small dataset. As usual what is good will depend on the impact this estimations will have on future decisions. 
 
 
