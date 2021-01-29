@@ -1,12 +1,21 @@
+---
+title: "Montecarlo simulation to estimate STOOIP"
+subtitle: "Sensitivity to sample size "
+date: "1/29/2021"
+output: 
+  html_document: 
+    toc: yes
+    toc_float:
+      toc_collapsed: no
+    theme: readable
+    keep_md: yes
+---
 
 
-# Montecarlo simulation to estimate STOOIP  
-
-###  Sensitivity to sample size  
 
 
-![swimming with friends](open_water_friends.JPG)
 
+![swimming with friends](../open_water_friends.JPG)
 
 ## Description  
 In this excercise we want to  have a qualitative feel of the performance we can obtain using a Montecarlo simulation to estimate the **STOOIP** on a theoretical field. We will assume two extreme examples:  
