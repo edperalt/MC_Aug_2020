@@ -229,11 +229,7 @@ Bo distribution is normal with a mean of 1.07 and 0.02 standard deviation.
 
 ## Montecarlo simulations 
 
-The STOOIP is estimated in bbls with the following formula:
-
-$$ STOOIP = Area * Thickness * Porosity * ( 1 - Sw ) / Bo $$  
-
-**<span style="color:blue"> Blue </span>** lines represent **P10** and **P90** and the **<span style="color:Red"> Red </span>** line the **P50**.
+All **STOOIP** histograms resulting from the simulation have 3 colored lines, two **<span style="color:blue"> Blue </span>** lines represent **P10** and **P90** and the **<span style="color:Red"> Red </span>** line the **P50**.
 
 ###  100 simulations
 
